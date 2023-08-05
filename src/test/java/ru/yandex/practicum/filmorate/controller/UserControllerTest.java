@@ -48,7 +48,7 @@ class UserControllerTest {
 
     @Test
     void createUser_checkNameIsNull() {
-        User userTest = new User(1, "test1@yandex.ru", "login1", "", "01/01/2000");
+        User userTest = new User(1, "test1@yandex.ru", "login1", "", "01-01-2000");
         userController.createUser(userTest);
         assertEquals(userController.getUsers().get(0).getName(), "login1");
     }
