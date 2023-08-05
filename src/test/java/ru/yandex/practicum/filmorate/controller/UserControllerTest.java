@@ -18,31 +18,31 @@ class UserControllerTest {
 
     @Test
     void createUser_checkEmailIsBlank() {
-        User userTest = new User(1, "", "login1", "name1", "01/01/2000");
+        User userTest = new User(1, "", "login1", "name1", "01-01-2000");
         assertThrows(ValidationException.class, () -> userController.createUser(userTest));
     }
 
     @Test
     void createUser_checkLoginIsBlank() {
-        User userTest = new User(1, "test1@yandex.ru", "", "name1", "01/01/2000");
+        User userTest = new User(1, "test1@yandex.ru", "", "name1", "01-01-2000");
         assertThrows(ValidationException.class, () -> userController.createUser(userTest));
     }
 
     @Test
     void createUser_checkEmailIsDontHasDogs() {
-        User userTest = new User(1, "test1yandex.ru", "login1", "name1", "01/01/2000");
+        User userTest = new User(1, "test1yandex.ru", "login1", "name1", "01-01-2000");
         assertThrows(ValidationException.class, () -> userController.createUser(userTest));
     }
 
     @Test
     void createUser_checkLoginHasSpace() {
-        User userTest = new User(1, "test1@yandex.ru", "lo gin1", "name1", "01/01/2000");
+        User userTest = new User(1, "test1@yandex.ru", "lo gin1", "name1", "01-01-2000");
         assertThrows(ValidationException.class, () -> userController.createUser(userTest));
     }
 
     @Test
     void createUser_checkBirthday() {
-        User userTest = new User(1, "test1@yandex.ru", "login1", "name1", "01/01/2300");
+        User userTest = new User(1, "test1@yandex.ru", "login1", "name1", "01-01-2300");
         assertThrows(ValidationException.class, () -> userController.createUser(userTest));
     }
 
