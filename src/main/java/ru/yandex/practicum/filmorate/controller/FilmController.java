@@ -58,7 +58,7 @@ public class FilmController {
             log.warn("Задана недоступная дата выхода фильма.");
             return false;
         }
-        if (film.getDuration() > 0) {
+        if (film.getDuration() <= 0) {
             log.warn("Задана отрицательная продолжительность фильма.");
             return false;
         }
