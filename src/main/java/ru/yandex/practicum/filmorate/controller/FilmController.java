@@ -22,7 +22,7 @@ public class FilmController {
         return films.values().stream().collect(Collectors.toList());
     }
 
-    @PostMapping(value = "/films")
+    @PostMapping(value = "/films", consumes={"application/json"})
     public Film createFilm(@RequestBody Film film) throws ValidationException {
         if (!validationFilm(film)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошабка ввода данных фильма");
@@ -34,7 +34,7 @@ public class FilmController {
     }
 
 
-    @PutMapping(value = "/films")
+    @PutMapping(value = "/films", consumes={"application/json"})
     public Film updateFilm(@RequestBody Film film) throws ValidationException {
         if (!validationFilm(film)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных фильма");

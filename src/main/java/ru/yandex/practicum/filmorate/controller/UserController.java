@@ -21,7 +21,7 @@ public class UserController {
         return users.values().stream().collect(Collectors.toList());
     }
 
-    @PostMapping(value = "/users")
+    @PostMapping(value = "/users", consumes={"application/json"})
     public User createUser(@RequestBody User user) {
         if (!validationUser(user)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
@@ -31,7 +31,7 @@ public class UserController {
         return user;
     }
 
-    @PutMapping(value = "/users")
+    @PutMapping(value = "/users", consumes={"application/json"})
     public User updateUser(@RequestBody User user) {
         if (!validationUser(user)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
@@ -42,7 +42,7 @@ public class UserController {
     }
 
     private boolean validationUser(User user) {
-        if (user.getName().isBlank()) {
+        if (user.getName()==null) {
             user.setName(user.getLogin());
         }
         if (user.getLogin().isBlank()) {
