@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,7 @@ public class UserController {
         return users.values().stream().collect(Collectors.toList());
     }
 
-    @PostMapping(value = "/users", consumes={"application/json"})
+    @PostMapping(value = "/users", consumes = {"application/json"})
     public User createUser(@RequestBody User user) {
         if (!validationUser(user)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
@@ -31,7 +32,7 @@ public class UserController {
         return user;
     }
 
-    @PutMapping(value = "/users", consumes={"application/json"})
+    @PutMapping(value = "/users", consumes = {"application/json"})
     public User updateUser(@RequestBody User user) {
         if (!validationUser(user)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
@@ -42,7 +43,7 @@ public class UserController {
     }
 
     private boolean validationUser(User user) {
-        if (user.getName()==null) {
+        if (user.getName() == null) {
             user.setName(user.getLogin());
         }
         if (user.getLogin().isBlank()) {
