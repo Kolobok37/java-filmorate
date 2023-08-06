@@ -66,7 +66,12 @@ public class FilmController {
             return false;
         }
         if (film.getId() == 0) {
-            film.setId(1);
+            if (films.size() == 0) {
+                film.setId(1);
+            } else {
+                int a = films.keySet().stream().max((id1, id2) -> id1 - id2).get();
+                film.setId(++a);
+            }
         }
         return true;
     }

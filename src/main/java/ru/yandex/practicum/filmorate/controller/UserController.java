@@ -66,7 +66,12 @@ public class UserController {
             return false;
         }
         if (user.getId() == 0) {
-            user.setId(1);
+            if (users.size() == 0) {
+                user.setId(1);
+            } else {
+                int a = users.keySet().stream().max((id1, id2) -> id1 - id2).get();
+                user.setId(++a);
+            }
         }
         return true;
     }
