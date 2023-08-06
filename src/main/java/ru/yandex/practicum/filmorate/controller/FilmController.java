@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,7 @@ public class FilmController {
         return films.values().stream().collect(Collectors.toList());
     }
 
-    @PostMapping(value = "/films", consumes={"application/json"})
+    @PostMapping(value = "/films", consumes = {"application/json"})
     public Film createFilm(@RequestBody Film film) throws ValidationException {
         if (!validationFilm(film)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошабка ввода данных фильма");
@@ -34,7 +35,7 @@ public class FilmController {
     }
 
 
-    @PutMapping(value = "/films", consumes={"application/json"})
+    @PutMapping(value = "/films", consumes = {"application/json"})
     public Film updateFilm(@RequestBody Film film) throws ValidationException {
         if (!validationFilm(film)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных фильма");
