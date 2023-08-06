@@ -24,7 +24,8 @@ public class FilmController {
     }
 
     @PostMapping(value = "/films", consumes = {"application/json"})
-    public Film createFilm(@RequestBody Film film) throws ValidationException {
+    public Film createFilm(@RequestBody Film film) {
+        addingFilmDate(film);
         if (!validationFilm(film)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошабка ввода данных фильма");
         }
@@ -36,7 +37,8 @@ public class FilmController {
 
 
     @PutMapping(value = "/films", consumes = {"application/json"})
-    public Film updateFilm(@RequestBody Film film) throws ValidationException {
+    public Film updateFilm(@RequestBody Film film) {
+        addingFilmDate(film);
         if (!films.containsKey(film.getId())) {
             throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Ошибка ввода данных фильма");
         }
@@ -48,8 +50,23 @@ public class FilmController {
         return film;
     }
 
+    private void addingFilmDate(Film film) {
+        if (film.getId() == 0) {
+            if (films.size() == 0) {
+                film.setId(1);
+            } else {
+                int a = films.keySet().stream().max((id1, id2) -> id1 - id2).get();
+                film.setId(++a);
+            }
+        }
+    }
+
     private boolean validationFilm(Film film) {
-        if (film.getName().isBlank()) {
+        if (film.getName() == null || film.getDescription() == null || film.getReleaseDate() == null) {
+            log.warn("Данные фильма заполнены неполностью.");
+            return false;
+        }
+        if (film.getName() == null || film.getName().isBlank()) {
             log.warn("Задано пустое название фильма.");
             return false;
         }
@@ -62,16 +79,8 @@ public class FilmController {
             return false;
         }
         if (film.getDuration() <= 0) {
-            log.warn("Задана отрицательная продолжительность фильма.");
+            log.warn("Продолжительность фильма заданна неверно.");
             return false;
-        }
-        if (film.getId() == 0) {
-            if (films.size() == 0) {
-                film.setId(1);
-            } else {
-                int a = films.keySet().stream().max((id1, id2) -> id1 - id2).get();
-                film.setId(++a);
-            }
         }
         return true;
     }

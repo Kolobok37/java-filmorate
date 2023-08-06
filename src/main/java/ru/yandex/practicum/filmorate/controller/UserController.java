@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -24,6 +25,7 @@ public class UserController {
 
     @PostMapping(value = "/users", consumes = {"application/json"})
     public User createUser(@RequestBody User user) {
+        addingUserDate(user);
         if (!validationUser(user)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
         }
@@ -34,6 +36,7 @@ public class UserController {
 
     @PutMapping(value = "/users", consumes = {"application/json"})
     public User updateUser(@RequestBody User user) {
+        addingUserDate(user);
         if (!users.containsKey(user.getId())) {
             throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "User update unknown");
         }
@@ -45,16 +48,31 @@ public class UserController {
         return user;
     }
 
-    private boolean validationUser(User user) {
+    private void addingUserDate(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        if (user.getLogin().isBlank()) {
-            log.warn("Задан пустой логин.");
+        if (user.getId() == 0) {
+            if (users.size() == 0) {
+                user.setId(1);
+            } else {
+                int a = users.keySet().stream().max((id1, id2) -> id1 - id2).get();
+                user.setId(++a);
+            }
+        }
+    }
+
+    private boolean validationUser(User user) {
+        if (user.getEmail() == null || user.getLogin() == null || user.getBirthday() == null) {
+            log.warn("Данные заполнены неполностью.");
             return false;
         }
         if (!user.getEmail().contains("@")) {
             log.warn("Задан неверный e-mail.");
+            return false;
+        }
+        if (user.getLogin().isBlank()) {
+            log.warn("Задан пустой логин.");
             return false;
         }
         if (user.getLogin().contains(" ")) {
