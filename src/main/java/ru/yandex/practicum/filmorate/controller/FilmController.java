@@ -26,7 +26,7 @@ public class FilmController {
     @PostMapping(value = "/films", consumes = {"application/json"})
     public Film createFilm(@RequestBody Film film) throws ValidationException {
         if (!validationFilm(film)) {
-                throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошабка ввода данных фильма");
+            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошабка ввода данных фильма");
         }
         films.put(film.getId(), film);
         log.info("Добавлен фильм \"" + film.getName() + "\"");
@@ -65,7 +65,7 @@ public class FilmController {
             log.warn("Задана отрицательная продолжительность фильма.");
             return false;
         }
-        if(film.getId()==0){
+        if (film.getId() == 0) {
             film.setId(1);
         }
         return true;

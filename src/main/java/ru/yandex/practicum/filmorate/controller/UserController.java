@@ -65,7 +65,7 @@ public class UserController {
             log.warn("Дата рождения задана неверно");
             return false;
         }
-        if(user.getId()==0){
+        if (user.getId() == 0) {
             user.setId(1);
         }
         return true;
