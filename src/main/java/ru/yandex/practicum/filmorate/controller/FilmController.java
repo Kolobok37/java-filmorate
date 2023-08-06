@@ -38,7 +38,7 @@ public class FilmController {
     @PutMapping(value = "/films", consumes = {"application/json"})
     public Film updateFilm(@RequestBody Film film) throws ValidationException {
         if (!films.containsKey(film.getId())) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных фильма");
+            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Ошибка ввода данных фильма");
         }
         if (!validationFilm(film)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных фильма");
