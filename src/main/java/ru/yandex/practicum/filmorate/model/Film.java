@@ -12,12 +12,12 @@ public class Film {
     private int id;
     private String name;
     private String description;
-    @JsonFormat(pattern = "dd-MM-yyyy", shape = JsonFormat.Shape.STRING)
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
 
     private LocalDate releaseDate;
     private Duration duration;
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
     public Film(int id, String name, String description, String releaseDate, Duration duration) {

@@ -14,8 +14,8 @@ public class User {
 
     private String name;
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    @JsonFormat(pattern = "dd-MM-yyyy", shape = JsonFormat.Shape.STRING)
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate birthday;
 
     public User(int id, String email, String login, String name, String birthday) {
