@@ -34,6 +34,9 @@ public class UserController {
 
     @PutMapping(value = "/users", consumes = {"application/json"})
     public User updateUser(@RequestBody User user) {
+        if (!users.containsKey(user.getId())) {
+            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
+        }
         if (!validationUser(user)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
         }
