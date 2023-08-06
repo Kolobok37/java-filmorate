@@ -65,6 +65,9 @@ public class FilmController {
             log.warn("Задана отрицательная продолжительность фильма.");
             return false;
         }
+        if(film.getId()==0){
+            film.setId(1);
+        }
         return true;
     }
 
