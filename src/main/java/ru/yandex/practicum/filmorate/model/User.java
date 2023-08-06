@@ -14,7 +14,7 @@ public class User {
 
     private String name;
 
-    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate birthday;
 

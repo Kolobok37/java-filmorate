@@ -17,9 +17,7 @@ public class Film {
     private LocalDate releaseDate;
     private Duration duration;
 
-
-
-    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public Film(int id, String name, String description, String releaseDate, Duration duration) {
         this.id = id;
