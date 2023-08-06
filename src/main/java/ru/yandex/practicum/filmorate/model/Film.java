@@ -17,6 +17,8 @@ public class Film {
     private LocalDate releaseDate;
     private Duration duration;
 
+
+
     final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public Film(int id, String name, String description, String releaseDate, Duration duration) {
@@ -25,5 +27,9 @@ public class Film {
         this.description = description;
         this.releaseDate = LocalDate.parse(releaseDate, formatter);
         this.duration = duration;
+    }
+
+    public long getDuration() {
+        return duration.toSeconds();
     }
 }
