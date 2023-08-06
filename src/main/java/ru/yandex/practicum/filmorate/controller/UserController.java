@@ -43,7 +43,7 @@ public class UserController {
     }
 
     private boolean validationUser(User user) {
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
         if (user.getLogin().isBlank()) {
