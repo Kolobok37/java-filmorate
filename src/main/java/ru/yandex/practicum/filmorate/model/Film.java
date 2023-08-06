@@ -17,13 +17,11 @@ public class Film {
     private LocalDate releaseDate;
     private Duration duration;
 
-    final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-    public Film(int id, String name, String description, String releaseDate, Duration duration) {
+    public Film(int id, String name, String description, LocalDate releaseDate, Duration duration) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.releaseDate = LocalDate.parse(releaseDate, formatter);
+        this.releaseDate = releaseDate;
         this.duration = duration;
     }
 
