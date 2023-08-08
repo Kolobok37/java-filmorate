@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
 
     private final Logger log = LoggerFactory.getLogger(FilmController.class);
     private HashMap<Integer, Film> films = new HashMap<>();
@@ -33,9 +32,9 @@ public class InMemoryFilmStorage implements FilmStorage{
     public Film createFilm(Film film) {
         addingFilmDate(film);
         if (!validationFilm(film)) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошабка ввода данных фильма");
+            throw new ValidationException("Ошабка ввода данных фильма");
         }
-        films.put(film.getFilmId(), film);
+        films.put(film.getId(), film);
         log.info("Добавлен фильм \"" + film.getName() + "\"");
         return film;
     }
@@ -43,24 +42,26 @@ public class InMemoryFilmStorage implements FilmStorage{
     @Override
     public Film updateFilm(Film film) {
         addingFilmDate(film);
-        if (!films.containsKey(film.getFilmId())) {
-            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Ошибка ввода данных фильма");
-        }
         if (!validationFilm(film)) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных фильма");
+            throw new ValidationException("Ошибка ввода данных фильма");
         }
-        films.put(film.getFilmId(), film);
+        films.put(film.getId(), film);
         log.info("Обновлён фильм \"" + film.getName() + "\"");
-        return null;
+        return film;
+    }
+
+    @Override
+    public boolean checkExistenceFilm(int filmId) {
+        return films.containsKey(filmId);
     }
 
     private void addingFilmDate(Film film) {
-        if (film.getFilmId() == 0) {
+        if (film.getId() == 0) {
             if (films.size() == 0) {
-                film.setFilmId(1);
+                film.setId(1);
             } else {
                 int a = films.keySet().stream().max((id1, id2) -> id1 - id2).get();
-                film.setFilmId(++a);
+                film.setId(++a);
             }
         }
     }

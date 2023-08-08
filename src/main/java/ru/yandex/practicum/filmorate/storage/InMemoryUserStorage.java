@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -26,10 +25,10 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User createUser(User user) {
         addingUserDate(user);
-        if (!validationUser(user)) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
+        if (!validationUserDate(user) || !validationExistenceUser(user)) {
+            throw new ValidationException("Ошибка ввода данных пользователя");
         }
-        users.put(user.getUserId(), user);
+        users.put(user.getId(), user);
         log.info("Добавлен пользователь \"" + user.getLogin() + "\"");
         return user;
     }
@@ -37,13 +36,10 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User updateUser(User user) {
         addingUserDate(user);
-        if (!users.containsKey(user.getUserId())) {
-            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "User update unknown");
+        if (!validationUserDate(user)) {
+            throw new ValidationException("Ошибка ввода данных пользователя");
         }
-        if (!validationUser(user)) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
-        }
-        users.put(user.getUserId(), user);
+        users.put(user.getId(), user);
         log.info("Обновлён пользователь \"" + user.getLogin() + "\"");
         return user;
     }
@@ -57,17 +53,17 @@ public class InMemoryUserStorage implements UserStorage {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        if (user.getUserId() == 0) {
+        if (user.getId() == null || user.getId() == 0) {
             if (users.size() == 0) {
-                user.setUserId(1);
+                user.setId(1);
             } else {
                 int a = users.keySet().stream().max((id1, id2) -> id1 - id2).get();
-                user.setUserId(++a);
+                user.setId(++a);
             }
         }
     }
 
-    private boolean validationUser(User user) {
+    private boolean validationUserDate(User user) {
         if (user.getEmail() == null || user.getLogin() == null || user.getBirthday() == null) {
             log.warn("Данные заполнены неполностью.");
             return false;
@@ -88,14 +84,18 @@ public class InMemoryUserStorage implements UserStorage {
             log.warn("Дата рождения задана неверно");
             return false;
         }
-        if (user.getUserId() == 0) {
-            if (users.size() == 0) {
-                user.setUserId(1);
-            } else {
-                int a = users.keySet().stream().max((id1, id2) -> id1 - id2).get();
-                user.setUserId(++a);
-            }
+        return true;
+    }
+
+    private boolean validationExistenceUser(User user) {
+        if (users.containsKey(user.getId())) {
+            log.warn("Такой пользователь уже существует");
+            return false;
         }
         return true;
+    }
+
+    public boolean checkExistenceUser(int id) {
+        return users.containsKey(id);
     }
 }

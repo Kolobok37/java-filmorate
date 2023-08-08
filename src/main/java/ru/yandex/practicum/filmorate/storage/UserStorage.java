@@ -12,4 +12,6 @@ public interface UserStorage {
     User updateUser(User user);
 
     User getUser(int id);
+
+    boolean checkExistenceUser(int id);
 }

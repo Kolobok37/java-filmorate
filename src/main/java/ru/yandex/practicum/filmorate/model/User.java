@@ -9,27 +9,28 @@ import java.util.Set;
 
 @Data
 public class User {
-    private Integer userId;
+    private Integer id;
     private String email;
     private String login;
     private String name;
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate birthday;
     private final Set<Integer> friendsId = new HashSet<>();
+    private final Set<Integer> filmsLikesId = new HashSet<>();
 
     public User(Integer userId, String email, String login, String name, LocalDate birthday) {
-        this.userId = userId;
+        this.id = userId;
         this.email = email;
         this.login = login;
         this.name = name;
         this.birthday = birthday;
     }
 
-    public void addFriends(int idFriends){
+    public void addFriends(int idFriends) {
         friendsId.add(idFriends);
     }
 
-    public void deleteFriends(int idFriends){
+    public void deleteFriends(int idFriends) {
         friendsId.remove(idFriends);
     }
 }

@@ -12,6 +12,8 @@ public interface FilmStorage {
     Film createFilm(Film film);
 
     Film updateFilm(Film film);
+
+    boolean checkExistenceFilm(int filmId);
 }
 
 
