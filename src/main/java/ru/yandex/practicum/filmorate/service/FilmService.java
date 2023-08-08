@@ -33,8 +33,8 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilm(int count) {
-        return filmStorage.getFilms().stream().sorted(Comparator.comparing(Film::getNumberLike).reversed()).
-                limit(count).collect(Collectors.toList());
+        return filmStorage.getFilms().stream().sorted(Comparator.comparing(Film::getNumberLike).reversed())
+                .limit(count).collect(Collectors.toList());
     }
 
     public Film createFilm(Film film) {
@@ -50,25 +50,25 @@ public class FilmService {
         checkExistenceFilm(filmId);
         userStorage.checkExistenceUser(userId);
         filmStorage.getFilm(filmId).addLike(userId);
-        log.info("Пользователь %d поставил лайк фильму %d",userId,filmId);
+        log.info("Пользователь %d поставил лайк фильму %d", userId, filmId);
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
         checkExistenceFilm(filmId);
         checkExistenceUser(userId);
         filmStorage.getFilm(filmId).deleteLike(userId);
-        log.info("Пользователь %d удалил лайк фильму %d",userId,filmId);
+        log.info("Пользователь %d удалил лайк фильму %d", userId, filmId);
     }
 
     private void checkExistenceFilm(int filmId) {
         if (!filmStorage.checkExistenceFilm(filmId)) {
-            log.warn("Ошибка: фильм %d не найден",filmId);
+            log.warn("Ошибка: фильм %d не найден", filmId);
             throw new NotFoundException("Фильм не найден.");
         }
     }
 
-    private void checkExistenceUser(int id){
-        if(!userStorage.checkExistenceUser(id)){
+    private void checkExistenceUser(int id) {
+        if (!userStorage.checkExistenceUser(id)) {
             log.warn("Ошибка: пользователь %d не найден", id);
             throw new NotFoundException("Пользователь не найден.");
         }

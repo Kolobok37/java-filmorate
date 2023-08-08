@@ -43,9 +43,9 @@ public class UserService {
     public List<User> getCommonFriends(int userId, int friendId) {
         checkExistenceUser(userId);
         checkExistenceUser(friendId);
-        return userStorage.getUser(userId).getFriendsId().stream().
-                filter(userStorage.getUser(friendId).getFriendsId()::contains).map(id -> userStorage.getUser(id)).
-                collect(Collectors.toList());
+        return userStorage.getUser(userId).getFriendsId().stream()
+                .filter(userStorage.getUser(friendId).getFriendsId()::contains).map(id -> userStorage.getUser(id))
+                .collect(Collectors.toList());
     }
 
     public List<User> getUsers() {
@@ -68,8 +68,8 @@ public class UserService {
 
     public List<User> getFriends(int userId) {
         checkExistenceUser(userId);
-        return userStorage.getUser(userId).getFriendsId().stream().
-                map(id -> userStorage.getUser(id)).collect(Collectors.toList());
+        return userStorage.getUser(userId).getFriendsId().stream()
+                .map(id -> userStorage.getUser(id)).collect(Collectors.toList());
     }
 
     private void checkExistenceUser(int id) {
