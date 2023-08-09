@@ -8,29 +8,29 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
-public class InMemoryFilmStorage implements FilmStorage {
+public class InMemoryFilmStorage implements Storage<Film> {
 
     private final Logger log = LoggerFactory.getLogger(FilmController.class);
     private HashMap<Integer, Film> films = new HashMap<>();
 
     @Override
-    public List<Film> getFilms() {
-        return films.values().stream().collect(Collectors.toList());
+    public List<Film> getAll() {
+        return new ArrayList<>(films.values());
     }
 
     @Override
-    public Film getFilm(int filmId) {
+    public Film searchById(int filmId) {
         return films.get(filmId);
     }
 
     @Override
-    public Film createFilm(Film film) {
-        addingFilmDate(film);
+    public Film create(Film film) {
+        addingFilmId(film);
         if (!validationFilm(film)) {
             throw new ValidationException("Ошабка ввода данных фильма");
         }
@@ -40,8 +40,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(Film film) {
-        addingFilmDate(film);
+    public Film update(Film film) {
+        addingFilmId(film);
         if (!validationFilm(film)) {
             throw new ValidationException("Ошибка ввода данных фильма");
         }
@@ -51,17 +51,17 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public boolean checkExistenceFilm(int filmId) {
+    public boolean checkExistence(int filmId) {
         return films.containsKey(filmId);
     }
 
-    private void addingFilmDate(Film film) {
+    private void addingFilmId(Film film) {
         if (film.getId() == 0) {
             if (films.size() == 0) {
                 film.setId(1);
             } else {
-                int a = films.keySet().stream().max((id1, id2) -> id1 - id2).get();
-                film.setId(++a);
+                int id = films.keySet().stream().max((id1, id2) -> id1 - id2).get();
+                film.setId(++id);
             }
         }
     }
@@ -71,7 +71,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.warn("Данные фильма заполнены неполностью.");
             return false;
         }
-        if (film.getName() == null || film.getName().isBlank()) {
+        if (film.getName().isBlank()) {
             log.warn("Задано пустое название фильма.");
             return false;
         }

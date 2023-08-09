@@ -1,80 +1,78 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.Storage;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class UserService {
 
-    private final UserStorage userStorage;
+    private final Storage<User> userStorage;
     private final Logger log = LoggerFactory.getLogger(FilmController.class);
-
-    @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
 
     public void addFriends(int userId, int friendId) {
         checkExistenceUser(userId);
         checkExistenceUser(friendId);
-        userStorage.getUser(userId).addFriends(friendId);
-        userStorage.getUser(friendId).addFriends(userId);
-        log.info("Пользователь % добавил пользователя %d в друзья", userId, friendId);
+        userStorage.searchById(userId).addFriends(friendId);
+        userStorage.searchById(friendId).addFriends(userId);
+        log.info("Пользователь {} добавил пользователя {} в друзья", userId, friendId);
 
     }
 
     public void deleteFriends(int userId, int friendId) {
         checkExistenceUser(userId);
         checkExistenceUser(friendId);
-        userStorage.getUser(userId).deleteFriends(friendId);
-        userStorage.getUser(friendId).deleteFriends(userId);
-        log.info("Пользователь % удалил пользователя %d из друзей", userId, friendId);
+        userStorage.searchById(userId).deleteFriends(friendId);
+        userStorage.searchById(friendId).deleteFriends(userId);
+        log.info("Пользователь {} удалил пользователя {} из друзей", userId, friendId);
     }
 
     public List<User> getCommonFriends(int userId, int friendId) {
         checkExistenceUser(userId);
         checkExistenceUser(friendId);
-        return userStorage.getUser(userId).getFriendsId().stream()
-                .filter(userStorage.getUser(friendId).getFriendsId()::contains).map(id -> userStorage.getUser(id))
+        return userStorage.searchById(userId).getFriendsId().stream()
+                .filter(userStorage.searchById(friendId).getFriendsId()::contains)
+                .map(id -> userStorage.searchById(id))
                 .collect(Collectors.toList());
     }
 
     public List<User> getUsers() {
-        return userStorage.getUsers();
+        return userStorage.getAll();
     }
 
     public User getUser(int userId) {
         checkExistenceUser(userId);
-        return userStorage.getUser(userId);
+        return userStorage.searchById(userId);
     }
 
     public User createUser(User user) {
-        return userStorage.createUser(user);
+        return userStorage.create(user);
     }
 
     public User updateUser(User user) {
         checkExistenceUser(user.getId());
-        return userStorage.updateUser(user);
+        return userStorage.update(user);
     }
 
     public List<User> getFriends(int userId) {
         checkExistenceUser(userId);
-        return userStorage.getUser(userId).getFriendsId().stream()
-                .map(id -> userStorage.getUser(id)).collect(Collectors.toList());
+        return userStorage.searchById(userId).getFriendsId().stream()
+                .map(id -> userStorage.searchById(id))
+                .collect(Collectors.toList());
     }
 
     private void checkExistenceUser(int id) {
-        if (!userStorage.checkExistenceUser(id)) {
-            log.warn("Ошибка: пользователь %d не найден", id);
+        if (!userStorage.checkExistence(id)) {
+            log.warn("Ошибка: пользователь {} не найден", id);
             throw new NotFoundException("Пользователь не найден.");
         }
     }

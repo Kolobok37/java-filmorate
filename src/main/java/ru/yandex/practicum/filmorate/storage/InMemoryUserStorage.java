@@ -8,22 +8,22 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
-public class InMemoryUserStorage implements UserStorage {
+public class InMemoryUserStorage implements Storage<User> {
     private final Logger log = LoggerFactory.getLogger(UserController.class);
     private HashMap<Integer, User> users = new HashMap<>();
 
     @Override
-    public List<User> getUsers() {
-        return users.values().stream().collect(Collectors.toList());
+    public List<User> getAll() {
+        return new ArrayList<>(users.values());
     }
 
     @Override
-    public User createUser(User user) {
+    public User create(User user) {
         addingUserDate(user);
         if (!validationUserDate(user) || !validationExistenceUser(user)) {
             throw new ValidationException("Ошибка ввода данных пользователя");
@@ -34,7 +34,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User user) {
+    public User update(User user) {
         addingUserDate(user);
         if (!validationUserDate(user)) {
             throw new ValidationException("Ошибка ввода данных пользователя");
@@ -45,7 +45,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(int id) {
+    public User searchById(int id) {
         return users.get(id);
     }
 
@@ -95,7 +95,7 @@ public class InMemoryUserStorage implements UserStorage {
         return true;
     }
 
-    public boolean checkExistenceUser(int id) {
+    public boolean checkExistence(int id) {
         return users.containsKey(id);
     }
 }
