@@ -2,94 +2,66 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class UserController {
-    private HashMap<Integer, User> users = new HashMap<>();
     private final Logger log = LoggerFactory.getLogger(UserController.class);
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/users")
     public List<User> getUsers() {
-        return users.values().stream().collect(Collectors.toList());
+        log.info("Запрошен список пользователей");
+        return userService.getUsers();
+    }
+
+    @GetMapping("/users/{userId}")
+    public User getUsers(@PathVariable int userId) {
+        log.info("Запрошен пользователь {}", userId);
+        return userService.getUser(userId);
     }
 
     @PostMapping(value = "/users", consumes = {"application/json"})
     public User createUser(@RequestBody User user) {
-        addingUserDate(user);
-        if (!validationUser(user)) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
-        }
-        users.put(user.getId(), user);
-        log.info("Добавлен пользователь \"" + user.getLogin() + "\"");
-        return user;
+        return userService.createUser(user);
     }
 
     @PutMapping(value = "/users", consumes = {"application/json"})
     public User updateUser(@RequestBody User user) {
-        addingUserDate(user);
-        if (!users.containsKey(user.getId())) {
-            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "User update unknown");
-        }
-        if (!validationUser(user)) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных пользователя");
-        }
-        users.put(user.getId(), user);
-        log.info("Обновлён пользователь \"" + user.getLogin() + "\"");
-        return user;
+        return userService.updateUser(user);
     }
 
-    private void addingUserDate(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        if (user.getId() == 0) {
-            if (users.size() == 0) {
-                user.setId(1);
-            } else {
-                int a = users.keySet().stream().max((id1, id2) -> id1 - id2).get();
-                user.setId(++a);
-            }
-        }
+    @PutMapping("/users/{userId}/friends/{friendId}")
+    public User addFriends(@PathVariable int userId, @PathVariable int friendId) {
+        userService.addFriends(userId, friendId);
+        return userService.getUser(userId);
     }
 
-    private boolean validationUser(User user) {
-        if (user.getEmail() == null || user.getLogin() == null || user.getBirthday() == null) {
-            log.warn("Данные заполнены неполностью.");
-            return false;
-        }
-        if (!user.getEmail().contains("@")) {
-            log.warn("Задан неверный e-mail.");
-            return false;
-        }
-        if (user.getLogin().isBlank()) {
-            log.warn("Задан пустой логин.");
-            return false;
-        }
-        if (user.getLogin().contains(" ")) {
-            log.warn("Задан логин содержащий пробел.");
-            return false;
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Дата рождения задана неверно");
-            return false;
-        }
-        if (user.getId() == 0) {
-            if (users.size() == 0) {
-                user.setId(1);
-            } else {
-                int a = users.keySet().stream().max((id1, id2) -> id1 - id2).get();
-                user.setId(++a);
-            }
-        }
-        return true;
+    @DeleteMapping("/users/{userId}/friends/{friendId}")
+    public User deleteFriends(@PathVariable int userId, @PathVariable int friendId) {
+        userService.deleteFriends(userId, friendId);
+        return userService.getUser(userId);
+    }
+
+    @GetMapping("/users/{userId}/friends")
+    public List<User> getFriends(@PathVariable int userId) {
+        log.info("Запрошен список друзей пользователя {}", userId);
+        return userService.getFriends(userId);
+    }
+
+    @GetMapping("/users/{userId}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable int userId, @PathVariable int otherId) {
+        log.info("Запрошен список общих друзей пользователей {} и {}", userId, otherId);
+        return userService.getCommonFriends(userId, otherId);
     }
 }

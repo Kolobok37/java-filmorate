@@ -2,90 +2,63 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class FilmController {
-    private HashMap<Integer, Film> films = new HashMap<>();
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
+
     private final Logger log = LoggerFactory.getLogger(FilmController.class);
 
     @GetMapping("/films")
     public List<Film> getFilms() {
-        log.info("Получен запрос.");
-        return films.values().stream().collect(Collectors.toList());
+        log.info("Запрошен список фильмов.");
+
+        return filmService.getFilms();
+    }
+
+    @GetMapping("/films/{filmId}")
+    public Film getFilm(@PathVariable int filmId) {
+        log.info("Запрошен фильм {}", filmId);
+        return filmService.getFilm(filmId);
+    }
+
+    @GetMapping("/films/popular")
+    public List<Film> getPopularFilm(@RequestParam(required = false, defaultValue = "10") String count) {
+        log.info("Запрошено {} популярных фильмов", count);
+        return filmService.getPopularFilm(Integer.parseInt(count));
     }
 
     @PostMapping(value = "/films", consumes = {"application/json"})
     public Film createFilm(@RequestBody Film film) {
-        addingFilmDate(film);
-        if (!validationFilm(film)) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошабка ввода данных фильма");
-        }
-        films.put(film.getId(), film);
-        log.info("Добавлен фильм \"" + film.getName() + "\"");
-
-        return film;
+        return filmService.createFilm(film);
     }
 
 
     @PutMapping(value = "/films", consumes = {"application/json"})
     public Film updateFilm(@RequestBody Film film) {
-        addingFilmDate(film);
-        if (!films.containsKey(film.getId())) {
-            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Ошибка ввода данных фильма");
-        }
-        if (!validationFilm(film)) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Ошибка ввода данных фильма");
-        }
-        films.put(film.getId(), film);
-        log.info("Обновлён фильм \"" + film.getName() + "\"");
-        return film;
+        return filmService.updateFilm(film);
     }
 
-    private void addingFilmDate(Film film) {
-        if (film.getId() == 0) {
-            if (films.size() == 0) {
-                film.setId(1);
-            } else {
-                int a = films.keySet().stream().max((id1, id2) -> id1 - id2).get();
-                film.setId(++a);
-            }
-        }
+    @PutMapping("/films/{filmId}/like/{userId}")
+    public Film addLike(@PathVariable int filmId, @PathVariable int userId) {
+        filmService.addLike(filmId, userId);
+        return filmService.getFilm(filmId);
     }
 
-    private boolean validationFilm(Film film) {
-        if (film.getName() == null || film.getDescription() == null || film.getReleaseDate() == null) {
-            log.warn("Данные фильма заполнены неполностью.");
-            return false;
-        }
-        if (film.getName() == null || film.getName().isBlank()) {
-            log.warn("Задано пустое название фильма.");
-            return false;
-        }
-        if (film.getDescription().length() > 200) {
-            log.warn("Задано слишком длинное описание фильма.");
-            return false;
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.warn("Задана недоступная дата выхода фильма.");
-            return false;
-        }
-        if (film.getDuration() <= 0) {
-            log.warn("Продолжительность фильма заданна неверно.");
-            return false;
-        }
-        return true;
-    }
-
-    public void removeAll() {
-        films.clear();
+    @DeleteMapping("/films/{filmId}/like/{userId}")
+    public Film deleteLike(@PathVariable int filmId, @PathVariable int userId) {
+        filmService.deleteLike(filmId, userId);
+        return filmService.getFilm(filmId);
     }
 }
