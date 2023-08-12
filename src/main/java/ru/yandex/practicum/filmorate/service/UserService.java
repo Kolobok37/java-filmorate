@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.Storage;
 
@@ -22,10 +23,26 @@ public class UserService {
     public void addFriends(int userId, int friendId) {
         checkExistenceUser(userId);
         checkExistenceUser(friendId);
-        userStorage.searchById(userId).addFriends(friendId);
-        userStorage.searchById(friendId).addFriends(userId);
-        log.info("Пользователь {} добавил пользователя {} в друзья", userId, friendId);
+        if (userStorage.searchById(userId).checkRequestFriendship(friendId)) {
+            userStorage.searchById(userId).addFriends(friendId);
+            userStorage.searchById(friendId).addFriends(userId);
+            log.info("Пользователь {} добавил пользователя {} в друзья", userId, friendId);
+        }
+        if (userStorage.searchById(userId).checkFriendship(friendId)) {
+            log.warn("Ошибка: пользователи {} и {} уже друзья", userId, friendId);
+            throw new ValidationException("Пользователи уже друзья.");
+        } else {
+            userStorage.searchById(friendId).requestingFriendship(userId);
+            log.info("Пользователь {} отправил запрос в друзья {}.", userId, friendId);
+        }
+    }
 
+    public void requestingFriendship(int userId, int friendId) {
+        checkExistenceUser(userId);
+        checkExistenceUser(friendId);
+        userStorage.searchById(userId).requestingFriendship(userId);
+        userStorage.searchById(friendId).requestingFriendship(userId);
+        log.info("Пользователь {} отправил запрос в друзья пользователю {}.", userId, friendId);
     }
 
     public void deleteFriends(int userId, int friendId) {

@@ -16,6 +16,8 @@ public class User {
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate birthday;
     private final Set<Integer> friendsId = new HashSet<>();
+    private final Set<Integer> friendshipRequest = new HashSet<>();
+
     private final Set<Integer> filmsLikesId = new HashSet<>();
 
     public User(Integer userId, String email, String login, String name, LocalDate birthday) {
@@ -26,11 +28,29 @@ public class User {
         this.birthday = birthday;
     }
 
-    public void addFriends(int idFriends) {
-        friendsId.add(idFriends);
+    public void requestingFriendship(int idFriend) {
+        friendsId.add(idFriend);
     }
 
-    public void deleteFriends(int idFriends) {
-        friendsId.remove(idFriends);
+    public void addFriends(int idFriend) {
+        friendsId.add(idFriend);
+    }
+
+    public boolean checkRequestFriendship(int idFriend){
+        if (friendshipRequest.contains(idFriend)) {
+            return true;
+        }
+        else return false;
+    }
+
+    public boolean checkFriendship(int idFriend){
+        if (friendsId.contains(idFriend)) {
+            return true;
+        }
+        else return false;
+    }
+
+    public void deleteFriends(int idFriend) {
+        friendsId.remove(idFriend);
     }
 }
