@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.StatusFriendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.Storage;
 
@@ -23,26 +24,26 @@ public class UserService {
     public void addFriends(int userId, int friendId) {
         checkExistenceUser(userId);
         checkExistenceUser(friendId);
-        if (userStorage.searchById(userId).checkRequestFriendship(friendId)) {
-            userStorage.searchById(userId).addFriends(friendId);
-            userStorage.searchById(friendId).addFriends(userId);
-            log.info("Пользователь {} добавил пользователя {} в друзья", userId, friendId);
+        if(userStorage.searchById(friendId).getFriends().containsKey(userId)){
+            if (userStorage.searchById(friendId).getFriends().get(userId) == StatusFriendship.request) {
+                userStorage.searchById(userId).addFriends(friendId, StatusFriendship.confirmed);
+                userStorage.searchById(friendId).addFriends(userId, StatusFriendship.confirmed);
+                log.info("Пользователь {} добавил пользователя {} в друзья.", userId, friendId);
+            }
+            else if (userStorage.searchById(userId).getFriends().get(friendId) == StatusFriendship.unconfirmed){
+                log.info("Пользователь {} повторно отправил заявку {} в друзья.", userId,friendId);
+                throw new ValidationException("Пользователь уже отправил заявку.");
+            }
+            else {
+                log.info("Пользователь {} уже в друзьях у {}.", friendId,userId);
+                throw new ValidationException("Пользователи уже друзья.");
+            }
         }
-        if (userStorage.searchById(userId).checkFriendship(friendId)) {
-            log.warn("Ошибка: пользователи {} и {} уже друзья", userId, friendId);
-            throw new ValidationException("Пользователи уже друзья.");
-        } else {
-            userStorage.searchById(friendId).requestingFriendship(userId);
-            log.info("Пользователь {} отправил запрос в друзья {}.", userId, friendId);
+        else {
+            userStorage.searchById(userId).addFriends(friendId, StatusFriendship.request);
+            userStorage.searchById(friendId).addFriends(userId, StatusFriendship.unconfirmed);
+            log.info("Пользователь {} отправил заявку в друзья {}.", userId, friendId);
         }
-    }
-
-    public void requestingFriendship(int userId, int friendId) {
-        checkExistenceUser(userId);
-        checkExistenceUser(friendId);
-        userStorage.searchById(userId).requestingFriendship(userId);
-        userStorage.searchById(friendId).requestingFriendship(userId);
-        log.info("Пользователь {} отправил запрос в друзья пользователю {}.", userId, friendId);
     }
 
     public void deleteFriends(int userId, int friendId) {
@@ -56,8 +57,8 @@ public class UserService {
     public List<User> getCommonFriends(int userId, int friendId) {
         checkExistenceUser(userId);
         checkExistenceUser(friendId);
-        return userStorage.searchById(userId).getFriendsId().stream()
-                .filter(userStorage.searchById(friendId).getFriendsId()::contains)
+        return userStorage.searchById(userId).getFriends().keySet().stream()
+                .filter(userStorage.searchById(friendId).getFriends().keySet()::contains)
                 .map(id -> userStorage.searchById(id))
                 .collect(Collectors.toList());
     }
@@ -82,7 +83,7 @@ public class UserService {
 
     public List<User> getFriends(int userId) {
         checkExistenceUser(userId);
-        return userStorage.searchById(userId).getFriendsId().stream()
+        return userStorage.searchById(userId).getFriends().keySet().stream()
                 .map(id -> userStorage.searchById(id))
                 .collect(Collectors.toList());
     }

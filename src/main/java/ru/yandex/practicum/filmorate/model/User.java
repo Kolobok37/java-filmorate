@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,9 +16,7 @@ public class User {
     private String name;
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate birthday;
-    private final Set<Integer> friendsId = new HashSet<>();
-    private final Set<Integer> friendshipRequest = new HashSet<>();
-
+    private final HashMap<Integer, StatusFriendship> friends = new HashMap<>();
     private final Set<Integer> filmsLikesId = new HashSet<>();
 
     public User(Integer userId, String email, String login, String name, LocalDate birthday) {
@@ -28,29 +27,11 @@ public class User {
         this.birthday = birthday;
     }
 
-    public void requestingFriendship(int idFriend) {
-        friendsId.add(idFriend);
-    }
-
-    public void addFriends(int idFriend) {
-        friendsId.add(idFriend);
-    }
-
-    public boolean checkRequestFriendship(int idFriend){
-        if (friendshipRequest.contains(idFriend)) {
-            return true;
-        }
-        else return false;
-    }
-
-    public boolean checkFriendship(int idFriend){
-        if (friendsId.contains(idFriend)) {
-            return true;
-        }
-        else return false;
+    public void addFriends(int idFriend, StatusFriendship statusFriendship) {
+        friends.put(idFriend,statusFriendship);
     }
 
     public void deleteFriends(int idFriend) {
-        friendsId.remove(idFriend);
+        friends.remove(idFriend);
     }
 }
