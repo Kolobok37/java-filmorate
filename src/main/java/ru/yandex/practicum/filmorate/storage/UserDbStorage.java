@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component("userDbStorage")
 public class UserDbStorage implements Storage<User> {
@@ -25,8 +26,8 @@ public class UserDbStorage implements Storage<User> {
 
     @Override
     public List<User> getAll() {
-
-        return null;
+        String sqlQuery = "select user_id, name, login, email,birthday ";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
     }
 
     @Override
@@ -38,11 +39,23 @@ public class UserDbStorage implements Storage<User> {
 
     @Override
     public User create(User user) {
+        jdbcTemplate.update("insert into users(email,login,name,birthday) values (?,?,?,?)",
+                user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
+        for (Integer filmId : user.getFilmsLikesId()) {
+            jdbcTemplate.update("insert into like_films(user_id,film_id) values(?,?)", user.getId(), filmId);
+        }
+        Set<Integer> friendId = user.getFriends().keySet();
+        friendId.stream().forEach(id ->
+                jdbcTemplate.update("insert into friendShip(user_id,friend_id,friendship_status) values(?,?,?)",
+                        user.getId(), id, user.getFriends().get(id)));
+
         return null;
     }
 
     @Override
     public User update(User user) {
+        jdbcTemplate.update("update users set email = ?, login = ?, name = ?, birthday = ?" +
+                "where user_id = ?", user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
         return null;
     }
 
@@ -67,9 +80,9 @@ public class UserDbStorage implements Storage<User> {
                 "LEFT OUTER JOIN friendship_status AS fs ON f.friendship_status =fs.friendship_status_ID " +
                 "WHERE f.user_id=?";
         //jdbcTemplate.query(sqlQueryLikesFilm, this::mapRowToLikes,user.getId());
-        List<Friend> friends= jdbcTemplate.query(sqlQueryFriends, this::mapRowToFriends, user.getId());
-        for(Friend friend:friends){
-            user.getFriends().put(friend.getId(),friend.getStatusFriendship());
+        List<Friend> friends = jdbcTemplate.query(sqlQueryFriends, this::mapRowToFriends, user.getId());
+        for (Friend friend : friends) {
+            user.getFriends().put(friend.getId(), friend.getStatusFriendship());
         }
         return user;
     }
@@ -86,12 +99,12 @@ public class UserDbStorage implements Storage<User> {
         return friend;
     }
 
-    private StatusFriendship StringToFriendshipStatus(String status){
-        switch (status){
+    private StatusFriendship StringToFriendshipStatus(String status) {
+        switch (status) {
             case "confirmed":
                 return StatusFriendship.confirmed;
             case "unconfirmed":
-                return  StatusFriendship.unconfirmed;
+                return StatusFriendship.unconfirmed;
             case "request":
                 return StatusFriendship.request;
         }
