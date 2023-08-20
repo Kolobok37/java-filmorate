@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Component
+
 public class InMemoryFilmStorage implements Storage<Film> {
 
     private final Logger log = LoggerFactory.getLogger(FilmController.class);

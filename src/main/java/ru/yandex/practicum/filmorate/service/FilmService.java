@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -15,11 +17,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class FilmService {
-    private final Storage<Film> filmStorage;
-
-    private final Storage<User> userStorage;
+    @Autowired
+    private Storage<Film> filmStorage;
+    @Autowired
+    @Qualifier("userDbStorage")
+    private Storage<User> userStorage;
 
     private final Logger log = LoggerFactory.getLogger(FilmController.class);
 

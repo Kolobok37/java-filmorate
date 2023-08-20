@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Component
+@Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements Storage<User> {
     private final Logger log = LoggerFactory.getLogger(UserController.class);
     private HashMap<Integer, User> users = new HashMap<>();
