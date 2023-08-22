@@ -30,7 +30,7 @@ public class UserDbStorage implements StorageUser {
                 log.info("Пользователь {} уже в друзьях у {}.", friendId, userId);
                 throw new ValidationException("Пользователи уже друзья.");
             }
-            if(friend.getFriends().get(userId) == StatusFriendship.unconfirmed){
+            if (friend.getFriends().get(userId) == StatusFriendship.unconfirmed) {
                 jdbcTemplate.update("insert into friendship(user_id,friend_id,friendship_status) values(?,?,?)", friendId, userId, 1);
                 log.info("Пользователь {} добавил в друзья {}.", userId, friendId);
             }
@@ -47,7 +47,7 @@ public class UserDbStorage implements StorageUser {
                 "FROM friendship " +
                 "WHERE user_id = ? AND friendship_status = ?";
         List<Integer> friendsId = jdbcTemplate.query(sqlQuery, this::mapRowToFriendsId, userId, "1");
-        List<User> friends = friendsId.stream().map(id->searchById(id)).collect(Collectors.toList());
+        List<User> friends = friendsId.stream().map(id -> searchById(id)).collect(Collectors.toList());
         return friends;
     }
 
@@ -55,7 +55,7 @@ public class UserDbStorage implements StorageUser {
     public void deleteFriends(int userId, int friendId) {
         String sqlQuery = "delete from friendship where user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sqlQuery, userId, friendId);
-        jdbcTemplate.update(sqlQuery, friendId,userId);
+        jdbcTemplate.update(sqlQuery, friendId, userId);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class UserDbStorage implements StorageUser {
                 "AS twos ON one.friend_id = twos.friend_id " +
                 "WHERE one.user_id = ? AND one.friendship_status = 1;";
         List<Integer> friendsId = jdbcTemplate.query(sqlQuery, this::mapRowToFriendsId, userId, otherId);
-        List<User> friends = friendsId.stream().map(id->searchById(id)).collect(Collectors.toList());
+        List<User> friends = friendsId.stream().map(id -> searchById(id)).collect(Collectors.toList());
         return friends;
     }
 
