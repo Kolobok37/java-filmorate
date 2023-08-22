@@ -53,7 +53,7 @@ public class FilmController {
     public Genre getGenre(@PathVariable int genreId) {
         log.info("Запрошен жанр {}", genreId);
         Optional<Genre> genre = filmService.getGenres().stream().filter(genre1 -> genre1.getId() == genreId).findFirst();
-        if(genre.isEmpty()){
+        if (genre.isEmpty()) {
             throw new NotFoundException("Жанр не найден.");
         }
         return genre.get();
@@ -69,7 +69,7 @@ public class FilmController {
     public Mpa getMpa(@PathVariable int mpaId) {
         log.info("Запрошен возврастной рейтинг", mpaId);
         Optional<Mpa> mpa = filmService.getAllMpa().stream().filter(mpa1 -> mpa1.getId() == mpaId).findFirst();
-        if(mpa.isEmpty()){
+        if (mpa.isEmpty()) {
             throw new NotFoundException("Возврастной рейтинг не найден.");
         }
         return mpa.get();
