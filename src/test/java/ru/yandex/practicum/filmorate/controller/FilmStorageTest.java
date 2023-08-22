@@ -65,7 +65,7 @@ public class FilmStorageTest {
             "DELETE FROM film_genre;",
     })
     @Test
-    void CheckPopularFilm() {
+    void checkPopularFilm() {
         Mpa mpa = new Mpa();
         mpa.setId(1);
         Film filmTest = new Film(1, "name1", "description1", LocalDate.of(2000, 01, 01), 100, 1, mpa);
@@ -105,7 +105,7 @@ public class FilmStorageTest {
             "DELETE FROM film_genre;",
     })
     @Test
-    void ckecksearchById() {
+    void ckeckSearchById() {
         Mpa mpa = new Mpa();
         mpa.setId(1);
         Film filmTest = new Film(1, "name1", "description1", LocalDate.of(2000, 01, 01), 100, 1, mpa);
