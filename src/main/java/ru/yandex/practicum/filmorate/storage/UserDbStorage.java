@@ -169,12 +169,12 @@ public class UserDbStorage implements StorageUser {
     private Friend mapRowToFriends(ResultSet resultSet, int rowNum) throws SQLException {
         Friend friend = Friend.builder()
                 .id(resultSet.getInt("friend_id"))
-                .statusFriendship(StringToFriendshipStatus(resultSet.getString("friendship_status")))
+                .statusFriendship(stringToFriendshipStatus(resultSet.getString("friendship_status")))
                 .build();
         return friend;
     }
 
-    private StatusFriendship StringToFriendshipStatus(String status) {
+    private StatusFriendship stringToFriendshipStatus(String status) {
         switch (status) {
             case "confirmed":
                 return StatusFriendship.confirmed;
