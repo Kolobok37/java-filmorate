@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,20 +8,21 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.Storage;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.StorageFilm;
+import ru.yandex.practicum.filmorate.storage.StorageUser;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
     @Autowired
-    private Storage<Film> filmStorage;
+    @Qualifier("filmDbStorage")
+    private StorageFilm filmStorage;
     @Autowired
     @Qualifier("userDbStorage")
-    private Storage<User> userStorage;
+    private StorageUser userStorage;
 
     private final Logger log = LoggerFactory.getLogger(FilmController.class);
 
@@ -36,9 +36,7 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilm(int count) {
-        return filmStorage.getAll().stream()
-                .sorted(Comparator.comparing(Film::getNumberLike).reversed())
-                .limit(count).collect(Collectors.toList());
+        return filmStorage.getPopularFilm(count);
     }
 
     public Film createFilm(Film film) {
@@ -53,14 +51,14 @@ public class FilmService {
     public void addLike(Integer filmId, Integer userId) {
         checkExistenceFilm(filmId);
         userStorage.checkExistence(userId);
-        filmStorage.searchById(filmId).addLike(userId);
+        filmStorage.addLike(filmId, userId);
         log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
         checkExistenceFilm(filmId);
         checkExistenceUser(userId);
-        filmStorage.searchById(filmId).deleteLike(userId);
+        filmStorage.deleteLike(filmId, userId);
         log.info("Пользователь {} удалил лайк фильму %d", userId, filmId);
     }
 
@@ -76,5 +74,13 @@ public class FilmService {
             log.warn("Ошибка: пользователь {} не найден", id);
             throw new NotFoundException("Пользователь не найден.");
         }
+    }
+
+    public List<Genre> getGenres() {
+        return filmStorage.getGenres();
+    }
+
+    public List<Mpa> getAllMpa() {
+        return filmStorage.getAllMpa();
     }
 }
