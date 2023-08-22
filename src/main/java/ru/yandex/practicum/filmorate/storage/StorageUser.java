@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface StorageUser extends Storage<User>{
+public interface StorageUser extends Storage<User> {
     Logger log = LoggerFactory.getLogger(UserController.class);
 
     void addFriends(int userId, int friendId);
@@ -18,6 +18,7 @@ public interface StorageUser extends Storage<User>{
     void deleteFriends(int userId, int friendId);
 
     List<User> getCommonFriends(int userId, int otherId);
+
     default boolean validationUserDate(User user) {
         if (user.getEmail() == null || user.getLogin() == null || user.getBirthday() == null) {
             log.warn("Данные заполнены неполностью.");
