@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
@@ -23,7 +25,6 @@ public class FilmController {
     @GetMapping("/films")
     public List<Film> getFilms() {
         log.info("Запрошен список фильмов.");
-
         return filmService.getFilms();
     }
 
@@ -37,6 +38,30 @@ public class FilmController {
     public List<Film> getPopularFilm(@RequestParam(required = false, defaultValue = "10") String count) {
         log.info("Запрошено {} популярных фильмов", count);
         return filmService.getPopularFilm(Integer.parseInt(count));
+    }
+
+    @GetMapping("/genres")
+    public List<Genre> getGenres() {
+        log.info("Запрошен список жанров.");
+        return filmService.getAllGenres();
+    }
+
+    @GetMapping("/genres/{genreId}")
+    public Genre getGenre(@PathVariable int genreId) {
+        log.info("Запрошен жанр {}", genreId);
+        return filmService.getGenre(genreId);
+    }
+
+    @GetMapping("/mpa")
+    public List<Mpa> getAllMpa() {
+        log.info("Запрошен список возврастных рейтингов.");
+        return filmService.getAllMpa();
+    }
+
+    @GetMapping("/mpa/{mpaId}")
+    public Mpa getMpa(@PathVariable int mpaId) {
+        log.info("Запрошен возврастной рейтинг", mpaId);
+        return filmService.getMpa(mpaId);
     }
 
     @PostMapping(value = "/films", consumes = {"application/json"})

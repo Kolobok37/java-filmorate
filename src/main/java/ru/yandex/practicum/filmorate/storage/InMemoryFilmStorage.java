@@ -1,21 +1,21 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
-public class InMemoryFilmStorage implements Storage<Film> {
 
-    private final Logger log = LoggerFactory.getLogger(FilmController.class);
+public class InMemoryFilmStorage implements StorageFilm {
+
     private HashMap<Integer, Film> films = new HashMap<>();
 
     @Override
@@ -55,7 +55,34 @@ public class InMemoryFilmStorage implements Storage<Film> {
         return films.containsKey(filmId);
     }
 
-    private void addingFilmId(Film film) {
+    @Override
+    public List<Film> getPopularFilm(int count) {
+        return getAll().stream()
+                .sorted(Comparator.comparing(Film::getNumberLike).reversed())
+                .limit(count).collect(Collectors.toList());
+    }
+
+    @Override
+    public void addLike(Integer filmId, Integer userId) {
+        searchById(filmId).addLike(userId);
+    }
+
+    @Override
+    public void deleteLike(Integer filmId, Integer userId) {
+        searchById(filmId).deleteLike(userId);
+    }
+
+    @Override
+    public List<Genre> getGenres() {
+        return null;
+    }
+
+    @Override
+    public List<Mpa> getAllMpa() {
+        return null;
+    }
+
+    public void addingFilmId(Film film) {
         if (film.getId() == 0) {
             if (films.size() == 0) {
                 film.setId(1);
@@ -64,29 +91,5 @@ public class InMemoryFilmStorage implements Storage<Film> {
                 film.setId(++id);
             }
         }
-    }
-
-    private boolean validationFilm(Film film) {
-        if (film.getName() == null || film.getDescription() == null || film.getReleaseDate() == null) {
-            log.warn("Данные фильма заполнены неполностью.");
-            return false;
-        }
-        if (film.getName().isBlank()) {
-            log.warn("Задано пустое название фильма.");
-            return false;
-        }
-        if (film.getDescription().length() > 200) {
-            log.warn("Задано слишком длинное описание фильма.");
-            return false;
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.warn("Задана недоступная дата выхода фильма.");
-            return false;
-        }
-        if (film.getDuration() <= 0) {
-            log.warn("Продолжительность фильма заданна неверно.");
-            return false;
-        }
-        return true;
     }
 }

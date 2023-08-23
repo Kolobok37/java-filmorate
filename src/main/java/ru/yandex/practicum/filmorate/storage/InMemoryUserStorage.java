@@ -1,20 +1,17 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.StatusFriendship;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Component
-public class InMemoryUserStorage implements Storage<User> {
-    private final Logger log = LoggerFactory.getLogger(UserController.class);
+@Component("InMemoryUserStorage")
+public class InMemoryUserStorage implements StorageUser {
     private HashMap<Integer, User> users = new HashMap<>();
 
     @Override
@@ -24,10 +21,10 @@ public class InMemoryUserStorage implements Storage<User> {
 
     @Override
     public User create(User user) {
-        addingUserDate(user);
-        if (!validationUserDate(user) || !validationExistenceUser(user)) {
+        if (!validationUserDate(user) || checkExistence(user.getId())) {
             throw new ValidationException("Ошибка ввода данных пользователя");
         }
+        addingUserDate(user);
         users.put(user.getId(), user);
         log.info("Добавлен пользователь \"" + user.getLogin() + "\"");
         return user;
@@ -35,10 +32,10 @@ public class InMemoryUserStorage implements Storage<User> {
 
     @Override
     public User update(User user) {
-        addingUserDate(user);
         if (!validationUserDate(user)) {
             throw new ValidationException("Ошибка ввода данных пользователя");
         }
+        addingUserDate(user);
         users.put(user.getId(), user);
         log.info("Обновлён пользователь \"" + user.getLogin() + "\"");
         return user;
@@ -49,7 +46,8 @@ public class InMemoryUserStorage implements Storage<User> {
         return users.get(id);
     }
 
-    private void addingUserDate(User user) {
+    @Override
+    public void addingUserDate(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -63,38 +61,51 @@ public class InMemoryUserStorage implements Storage<User> {
         }
     }
 
-    private boolean validationUserDate(User user) {
-        if (user.getEmail() == null || user.getLogin() == null || user.getBirthday() == null) {
-            log.warn("Данные заполнены неполностью.");
-            return false;
+
+    @Override
+    public void addFriends(int userId, int friendId) {
+        if (searchById(friendId).getFriends().containsKey(userId)) {
+            if (searchById(friendId).getFriends().get(userId) == StatusFriendship.unconfirmed) {
+                if (searchById(userId).getFriends().get(friendId) == StatusFriendship.confirmed) {
+                    searchById(friendId).addFriends(userId, StatusFriendship.confirmed);
+                }
+                log.info("Пользователь {} добавил пользователя {} в друзья.", userId, friendId);
+            } else if (searchById(userId).getFriends().get(friendId) == StatusFriendship.unconfirmed) {
+                log.info("Пользователь {} повторно отправил заявку {} в друзья.", userId, friendId);
+                throw new ValidationException("Пользователь уже отправил заявку.");
+            } else {
+                log.info("Пользователь {} уже в друзьях у {}.", friendId, userId);
+                throw new ValidationException("Пользователи уже друзья.");
+            }
+        } else {
+            searchById(userId).addFriends(friendId, StatusFriendship.unconfirmed);
+            searchById(friendId).addFriends(userId, StatusFriendship.confirmed);
+            log.info("Пользователь {} отправил заявку в друзья {}.", userId, friendId);
         }
-        if (!user.getEmail().contains("@")) {
-            log.warn("Задан неверный e-mail.");
-            return false;
-        }
-        if (user.getLogin().isBlank()) {
-            log.warn("Задан пустой логин.");
-            return false;
-        }
-        if (user.getLogin().contains(" ")) {
-            log.warn("Задан логин содержащий пробел.");
-            return false;
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Дата рождения задана неверно");
-            return false;
-        }
-        return true;
     }
 
-    private boolean validationExistenceUser(User user) {
-        if (users.containsKey(user.getId())) {
-            log.warn("Такой пользователь уже существует");
-            return false;
-        }
-        return true;
+    @Override
+    public List<User> getFriends(int userId) {
+        return searchById(userId).getFriends().keySet().stream()
+                .map(id -> searchById(id))
+                .collect(Collectors.toList());
     }
 
+    @Override
+    public void deleteFriends(int userId, int friendId) {
+        searchById(userId).deleteFriends(friendId);
+        searchById(friendId).deleteFriends(userId);
+        log.info("Пользователь {} удалил пользователя {} из друзей", userId, friendId);
+    }
+
+    public List<User> getCommonFriends(int userId, int otherId) {
+        return searchById(userId).getFriends().keySet().stream()
+                .filter(searchById(otherId).getFriends().keySet()::contains)
+                .map(id -> searchById(id))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public boolean checkExistence(int id) {
         return users.containsKey(id);
     }

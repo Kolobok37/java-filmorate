@@ -1,13 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Builder
 public class User {
     private Integer id;
     private String email;
@@ -15,7 +18,8 @@ public class User {
     private String name;
     @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate birthday;
-    private final Set<Integer> friendsId = new HashSet<>();
+    private final HashMap<Integer, StatusFriendship> friends = new HashMap<>();
+
     private final Set<Integer> filmsLikesId = new HashSet<>();
 
     public User(Integer userId, String email, String login, String name, LocalDate birthday) {
@@ -26,11 +30,11 @@ public class User {
         this.birthday = birthday;
     }
 
-    public void addFriends(int idFriends) {
-        friendsId.add(idFriends);
+    public void addFriends(int idFriend, StatusFriendship statusFriendship) {
+        friends.put(idFriend,statusFriendship);
     }
 
-    public void deleteFriends(int idFriends) {
-        friendsId.remove(idFriends);
+    public void deleteFriends(int idFriend) {
+        friends.remove(idFriend);
     }
 }
