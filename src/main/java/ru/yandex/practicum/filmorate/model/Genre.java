@@ -1,37 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import java.util.Objects;
 
+@Data
 public class Genre {
     @JsonProperty("id")
     private int id;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        switch (id) {
-            case (1):
-                return "Комедия";
-            case (2):
-                return "Драма";
-            case (3):
-                return "Мультфильм";
-            case (4):
-                return "Триллер";
-            case (5):
-                return "Документальный";
-            default:
-                return "Боевик";
-        }
-    }
+    @JsonProperty("name")
+    private String name;
 
     @Override
     public boolean equals(Object o) {

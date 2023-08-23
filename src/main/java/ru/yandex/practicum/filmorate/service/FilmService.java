@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.StorageFilm;
 import ru.yandex.practicum.filmorate.storage.StorageUser;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FilmService {
@@ -76,11 +77,28 @@ public class FilmService {
         }
     }
 
-    public List<Genre> getGenres() {
+    public List<Genre> getAllGenres() {
         return filmStorage.getGenres();
+    }
+
+    public Genre getGenre(int genreId) {
+        Optional<Genre> genre = filmStorage.getGenres().stream().filter(genre1 -> genre1.getId() == genreId).findFirst();
+        if (genre.isEmpty()) {
+            throw new NotFoundException("Жанр не найден.");
+        }
+        return genre.get();
     }
 
     public List<Mpa> getAllMpa() {
         return filmStorage.getAllMpa();
     }
+
+    public Mpa getMpa(int mpaId) {
+        Optional<Mpa> mpa = filmStorage.getAllMpa().stream().filter(mpa1 -> mpa1.getId() == mpaId).findFirst();
+        if (mpa.isEmpty()) {
+            throw new NotFoundException("Возврастной рейтинг не найден.");
+        }
+        return mpa.get();
+    }
+
 }

@@ -4,14 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class FilmController {
@@ -27,7 +25,6 @@ public class FilmController {
     @GetMapping("/films")
     public List<Film> getFilms() {
         log.info("Запрошен список фильмов.");
-
         return filmService.getFilms();
     }
 
@@ -46,17 +43,13 @@ public class FilmController {
     @GetMapping("/genres")
     public List<Genre> getGenres() {
         log.info("Запрошен список жанров.");
-        return filmService.getGenres();
+        return filmService.getAllGenres();
     }
 
     @GetMapping("/genres/{genreId}")
     public Genre getGenre(@PathVariable int genreId) {
         log.info("Запрошен жанр {}", genreId);
-        Optional<Genre> genre = filmService.getGenres().stream().filter(genre1 -> genre1.getId() == genreId).findFirst();
-        if (genre.isEmpty()) {
-            throw new NotFoundException("Жанр не найден.");
-        }
-        return genre.get();
+        return filmService.getGenre(genreId);
     }
 
     @GetMapping("/mpa")
@@ -68,11 +61,7 @@ public class FilmController {
     @GetMapping("/mpa/{mpaId}")
     public Mpa getMpa(@PathVariable int mpaId) {
         log.info("Запрошен возврастной рейтинг", mpaId);
-        Optional<Mpa> mpa = filmService.getAllMpa().stream().filter(mpa1 -> mpa1.getId() == mpaId).findFirst();
-        if (mpa.isEmpty()) {
-            throw new NotFoundException("Возврастной рейтинг не найден.");
-        }
-        return mpa.get();
+        return filmService.getMpa(mpaId);
     }
 
     @PostMapping(value = "/films", consumes = {"application/json"})
